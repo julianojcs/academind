@@ -6,6 +6,7 @@
 .pnp.js
 server.js
 package-lock.json
+nodemon.json
 
 # distribution
 /dist
