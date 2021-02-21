@@ -4,6 +4,8 @@ import { graphqlHTTP } from 'express-graphql'
 import { buildSchema } from 'graphql'
 import mongoose from 'mongoose'
 import Event from './models/event'
+import User from './models/user'
+import bcrypt from 'bcryptjs'
 // import moment from 'moment'
 
 const app = express()
@@ -23,10 +25,22 @@ app.use(
         date: String!
       }
 
+      type User {
+        _id: ID!
+        email: String!
+        password: String
+        createdAt: String!
+      }
+
       input EventInput {
         title: String!
         description: String!
         price: Float!
+      }
+      
+      input UserInput {
+        email: String!
+        password: String!
       }
 
       type RootQuery {
@@ -34,7 +48,8 @@ app.use(
       }
 
       type RootMutation {
-        createEvent(eventInput: EventInput): Event!
+        createEvent(eventInput: EventInput): Event
+        createUser(userInput: UserInput): User
       }
 
       schema {
@@ -45,29 +60,65 @@ app.use(
     rootValue: {
       events: () => {
         return Event.find()
-        .then((events) => {
-          return events.map(event => {
-            // return { ...event._doc, date: moment(event._doc.date).format('LLLL')}
-            return { ...event._doc, date: event._doc.date.toLocaleString()}
+          .then((events) => {
+            return events.map((event) => {
+              // return { ...event._doc, date: moment(event._doc.date).format('LLLL')}
+              return { ...event._doc, date: event._doc.date.toLocaleString() }
+            })
           })
-        })
-        .catch((err) => {
-          console.log(err)
-          throw err
-        })  
+          .catch((err) => {
+            console.log(err)
+            throw err
+          })
       },
       createEvent: ({ eventInput }) => {
         // const { title, description, price, date } = eventInput
-        const event = new Event(eventInput)
-        return event.save()
-        .then((result) => {
-          console.log({...result._doc})
-          return {...result._doc}
-        })
-        .catch((err) => {
-          console.log(err)
-          throw err
-        })
+        const event = new Event({...eventInput, creator: '6032880b7500740544bc88f8'})
+        let createdEvent;
+        return event
+          .save()
+          .then((result) => {
+            createdEvent = { ...result._doc }
+            return User.findById('6032880b7500740544bc88f8')
+          })
+          .then((user) => {
+            if (!user) {
+              throw new Error('User not found!')
+            }
+            user.createdEvents.push(event)
+            return user.save()
+          })
+          .then(() => {
+            return createdEvent
+          })
+          .catch((err) => {
+            console.log(err)
+            throw err
+          })
+      },
+      createUser: ({ userInput   }) => {
+        return User.findOne({email: userInput.email})
+          .then((user) => {
+            if (user) {
+              throw new Error('User exists already!')  
+            }
+            return bcrypt.hash(userInput.password, 12)
+          })
+          .then((hashedPassword) => {
+            const user = new User({
+              ...userInput,
+              password: hashedPassword
+            })
+            return user.save()
+          })
+          .then((result) => {
+            console.log({ ...result._doc })
+            return { ...result._doc, password: null, createdAt: result._doc.createdAt.toLocaleString() } //supress the password
+          })
+          .catch((err) => {
+            console.log(err)
+            throw err
+          })
       }
     },
     graphiql: true //Playground on/off
@@ -85,15 +136,11 @@ mongoose
   )
   .then(() => {
     app.listen({ port: 3000 }, () =>
-      console.log(`🚀 Server ready at http://localhost:3000`)
+      console.log(
+        `🚀 Server ready at http://localhost:3000 (${new Date().toLocaleString()})`
+      )
     )
   })
   .catch((err) => {
     console.log(err)
   })
-
-
-
-// app.listen({ port: 3000 }, () =>
-// console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`)
-// )
