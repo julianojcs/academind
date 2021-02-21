@@ -6,12 +6,42 @@ import mongoose from 'mongoose'
 import Event from './models/event'
 import User from './models/user'
 import bcrypt from 'bcryptjs'
+
 // import moment from 'moment'
 
 const app = express()
 app.use(bodyParser.json())
 
-// moment.locale('pt-br')
+const events = (eventIds) => {
+  return Event.find({ _id: { $in: eventIds } })
+    .then((events) => {
+      return events.map((event) => {
+        return {
+          ...event._doc,
+          date: event._doc.date.toLocaleString(),
+          creator: user.bind(this, event.creator)
+        }
+      })
+    })
+    .catch((err) => {
+      throw err
+    })
+}
+
+const user = (userId) => {
+  return User.findById(userId)
+    .then((user) => {
+      return {
+        ...user._doc,
+        password: null,
+        createdAt: user._doc.createdAt.toLocaleString(),
+        createdEvents: events.bind(this, user._doc.createdEvents)
+      }
+    })
+    .catch((err) => {
+      throw err
+    })
+}
 
 app.use(
   '/graphql',
@@ -23,15 +53,15 @@ app.use(
         description: String!
         price: Float!
         date: String!
+        creator: User!
       }
-
       type User {
         _id: ID!
         email: String!
         password: String
         createdAt: String!
+        createdEvents: [Event!]
       }
-
       input EventInput {
         title: String!
         description: String!
@@ -42,16 +72,13 @@ app.use(
         email: String!
         password: String!
       }
-
       type RootQuery {
         events: [Event!]!
       }
-
       type RootMutation {
         createEvent(eventInput: EventInput): Event
         createUser(userInput: UserInput): User
       }
-
       schema {
         query: RootQuery
         mutation: RootMutation
@@ -59,26 +86,39 @@ app.use(
     `),
     rootValue: {
       events: () => {
-        return Event.find()
-          .then((events) => {
-            return events.map((event) => {
-              // return { ...event._doc, date: moment(event._doc.date).format('LLLL')}
-              return { ...event._doc, date: event._doc.date.toLocaleString() }
+        return (
+          Event.find()
+            // .populate('creator')
+            .then((events) => {
+              return events.map((event) => {
+                // return { ...event._doc, date: moment(event._doc.date).format('LLLL')}
+                return {
+                  ...event._doc,
+                  date: event._doc.date.toLocaleString(),
+                  creator: user.bind(this, event._doc.creator)
+                }
+              })
             })
-          })
-          .catch((err) => {
-            console.log(err)
-            throw err
-          })
+            .catch((err) => {
+              console.log(err)
+              throw err
+            })
+        )
       },
       createEvent: ({ eventInput }) => {
         // const { title, description, price, date } = eventInput
-        const event = new Event({...eventInput, creator: '6032880b7500740544bc88f8'})
-        let createdEvent;
+        const event = new Event({
+          ...eventInput,
+          creator: '6032880b7500740544bc88f8'
+        })
+        let createdEvent
         return event
           .save()
           .then((result) => {
-            createdEvent = { ...result._doc }
+            createdEvent = {
+              ...result._doc,
+              creator: user.bind(this, result._doc.creator)
+            }
             return User.findById('6032880b7500740544bc88f8')
           })
           .then((user) => {
@@ -96,11 +136,11 @@ app.use(
             throw err
           })
       },
-      createUser: ({ userInput   }) => {
-        return User.findOne({email: userInput.email})
+      createUser: ({ userInput }) => {
+        return User.findOne({ email: userInput.email })
           .then((user) => {
             if (user) {
-              throw new Error('User exists already!')  
+              throw new Error('User exists already!')
             }
             return bcrypt.hash(userInput.password, 12)
           })
@@ -113,7 +153,11 @@ app.use(
           })
           .then((result) => {
             console.log({ ...result._doc })
-            return { ...result._doc, password: null, createdAt: result._doc.createdAt.toLocaleString() } //supress the password
+            return {
+              ...result._doc,
+              password: null,
+              createdAt: result._doc.createdAt.toLocaleString()
+            } //supress the password
           })
           .catch((err) => {
             console.log(err)
@@ -127,7 +171,8 @@ app.use(
 
 mongoose
   .connect(
-    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.grsjv.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`,
+    // `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.grsjv.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`,
+    'mongodb://localhost:27017/events-booking',
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
