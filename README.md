@@ -13,8 +13,8 @@ Next step, making the React front-end...
 * Clone the project:
 
 ```
-1. git clone https://github.com/julianojcs/academind.git
-2. cd academind
+1. git clone https://github.com/julianojcs/academind-event-booking-API
+2. cd academind-event-booking-API
 ```
 
 * Install the dependencies:
