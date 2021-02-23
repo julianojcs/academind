@@ -32,7 +32,8 @@ Next step, making the React front-end...
   "env": {
     "MONGO_USER": "myDbUserName",
     "MONGO_PASSWORD": "myDbPassword",
-    "MONGO_DB": "myDbName"
+    "MONGO_DB": "myDbName",
+    "JWT_KEY": "myJWTSecretKey"
   }
 }
 ```
