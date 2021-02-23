@@ -4,7 +4,9 @@
 
 Learning GraphQL, Nodejs, MongoDB and Reactjs creating a Event Booking Application
 
-# Under construction
+This is the Part 1 of this project. 
+The API made with GraphQL + NodeJS + MongoDB with user authenticated by JWT middleware.
+Next step, making the React front-end...
 
 ## Config
 

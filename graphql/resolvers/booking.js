@@ -3,7 +3,11 @@ import Booking from '../../models/booking'
 import { transformBooking, transformEvent } from './merge'
 
 module.exports = {
-  bookings: async () => {
+  bookings: async (_, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated user!')
+    }
+
     try {
       const bookings = await Booking.find()
       return bookings.map((booking) => {
@@ -14,11 +18,15 @@ module.exports = {
     }
   },
 
-  bookEvent: async ({ eventId }) => {
+  bookEvent: async ({ eventId }, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated user!')
+    }
+
     try {
       const fetchedEvent = await Event.findOne({ _id: eventId })
       const singleBooking = new Booking({
-        user: '60345738d142dd82f4400d5f',
+        user: req.userId,
         event: fetchedEvent
       })
       const result = await singleBooking.save()
@@ -28,7 +36,11 @@ module.exports = {
     }
   },
 
-  cancelBooking: async ({ bookingId }) => {
+  cancelBooking: async ({ bookingId }, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated user!')
+    }
+
     try {
       const booking = await Booking.findById(bookingId).populate('event')
       if (booking == null) {

@@ -4,10 +4,13 @@ import { graphqlHTTP } from 'express-graphql'
 import mongoose from 'mongoose'
 import schema from './graphql/schema'
 import rootValue from './graphql/resolvers'
+import isAuth from './middleware/is-auth'
 // import moment from 'moment'
 
 const app = express()
 app.use(bodyParser.json())
+
+app.use(isAuth)
 
 app.use(
   '/graphql',
