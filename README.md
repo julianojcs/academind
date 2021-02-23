@@ -42,3 +42,6 @@ Learning GraphQL, Nodejs, MongoDB and Reactjs creating a Event Booking Applicati
 ```
 
 Open the url [http://localhost:4000/](http://localhost:3000/) to make the tests requests:
+
+##Test Queries at GraphQL's playground.
+### You can find query examples into the /playground file.

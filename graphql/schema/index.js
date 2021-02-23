@@ -3,8 +3,8 @@ import { buildSchema } from 'graphql'
 module.exports = buildSchema(`
   type Booking {
     _id: ID!
-    Event: Event!
-    User: User!
+    event: Event!
+    user: User!
     createdAt: String!
     updatedAt: String!
   }

@@ -1,0 +1,76 @@
+### TO TRY A QUERY OR A MUTATION, UNCOMMENT THE FUNCIONS BELLOW
+
+### CREATING A NEW EVENT
+# mutation {
+#   createEvent(eventInput: {
+#     title: "Curso de inglês no Cambly"
+#     description: "Aulão Cambly"
+#     price: 100
+#   }) {
+#     _id title description price date 
+#     creator{
+#       email 
+#       createdEvents {
+#       	title
+#         description
+#       }
+#     }
+#   }
+# }
+
+### CREATING A NEW USER
+# mutation {
+#   createUser(userInput: {email: "apfjuliano@gmail.com", password: "teste"}) {
+#     _id email password createdAt
+#   }
+# }
+
+### BOOKING AN EVENT
+# mutation {
+#   bookEvent(eventId: "60345b538885b97a9420d87c"){
+#     _id
+#     User{
+#       _id
+#     }
+#   }
+# }
+
+### CANCELING A BOOKING
+# mutation{
+#   cancelBooking(bookingId: "60345d3d023d786be4dddf6a"){
+#     _id
+#     title
+#     creator{
+#       email
+#     }
+#   }
+# }
+
+### QUERY A LIST OF EVENTS
+# query {
+#   events{
+#     title
+#     date
+#     creator {
+#       email 
+#       createdEvents{
+#         title
+#       }
+#     }
+#   }
+# }
+
+### QUERY A LIST OF BOOKINGS
+# query {
+#   bookings{
+#     _id
+#     event{
+#       title
+#     }
+#     user{
+#       email
+#     }
+#     createdAt
+#     updatedAt
+#   }
+# }
