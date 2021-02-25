@@ -1,5 +1,12 @@
 ### TO TRY A QUERY OR A MUTATION, UNCOMMENT THE FUNCIONS BELLOW
 
+### USER LOGIN
+# query {
+#   login(email: "camilobatista@gmail.com", password: "camel"){
+#     userId token tokenExpiration
+#   }
+# }
+
 ### CREATING A NEW EVENT
 # mutation {
 #   createEvent(eventInput: {
