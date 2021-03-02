@@ -40,7 +40,11 @@ module.exports = {
       throw new Error('Pasword is incorrect!')
     }
 
-    const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_KEY, { expiresIn: '1h'})
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_KEY,
+      { expiresIn: '1d' }
+    )
 
     return {
       userId: user.id,
