@@ -48,6 +48,7 @@ module.exports = {
 
     return {
       userId: user.id,
+      email,
       token,
       tokenExpiration: 1
     }
